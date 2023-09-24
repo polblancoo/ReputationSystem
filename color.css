@@ -1,1 +1,7 @@
-.color1 {background-color:rgb (255, 122 89) ; }
+pre {
+    background-color: #f4f4f4;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: auto;
+}
