@@ -61,13 +61,13 @@ depositando en el contrato los tres premios a repartir.Lo ideal seria insertar u
 7. Consulta de fondos del premio: Los miembros pueden consultar los fondos acumulados en el premio de la ronda actual
    
 ## Funciones claves:
+
 1. Inicio de una nueva ronda de votación
-  
+ ``` 
       let admin = ... // ID del administrador<br>
-      <div class=”color”>Este es un div en una página web.</div>
       let funds1 = ... // Fondos para el primer puesto
       let funds2 = ... // Fondos para el segundo puesto
       let funds3 = ... // Fondos para el tercer puesto
       let duration = ... // Duración de la ronda en segundos
       contract.start_voting_round(funds1, funds2, funds3, duration);
-
+```
