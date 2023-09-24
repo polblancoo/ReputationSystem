@@ -82,13 +82,13 @@ Colocar substrate-contracts-node en una carpeta del PATH del sistema</br>
 
 <h1>Software utilizado:</h1>
 Software	Versión
-```
+
 rustup	1.26.0 (5af9b9484 2023-04-05)</br>
 rustc	1.72.0 (5680fa18f 2023-08-23)</br>
 cargo	1.72.0 (103a7ff2e 2023-08-15)</br>
 cargo-contract	3.2.0-unknown-x86_64-unknown-linux-gnu</br>
 substrate-contracts-node o swanky </br>
-```
+
 hr style="color: 30056b2;"/>
 
 <h1>Contribución</h1>
