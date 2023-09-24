@@ -2,12 +2,12 @@
 <hr style="color: 30056b2;"/>
 
 <h2 align="center">🦑 ink-examples Solución</h2>
-<strong># Contrato Reputation System</strong>strong>
+<strong># Contrato Reputation System</strong>
 
 El contrato Reputation System permite administrar un sistema de reputación y votación, donde los participantes pueden votar por otros miembros y ganar premios en función de sus votos y posición en la votación.
 
 <hr style="color: 30056b2;"/>
-<strong># Funcionalidades clave</strong>strong>
+<strong># Funcionalidades clave</strong>
 
 El contrato<strong> Reputation System</strong> incluye las siguientes funcionalidades:
 
