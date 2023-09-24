@@ -89,7 +89,7 @@ cargo	1.72.0 (103a7ff2e 2023-08-15)</br>
 cargo-contract	3.2.0-unknown-x86_64-unknown-linux-gnu</br>
 substrate-contracts-node o swanky </br>
 
-hr style="color: 30056b2;"/>
+<hr style="color: 30056b2;"/>
 
 <h1>Contribución</h1>
 Si deseas contribuir a este proyecto, ¡no dudes en hacerlo! Puedes enviar problemas (issues) o solicitudes de extracción (pull requests) en el repositorio.
