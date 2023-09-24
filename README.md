@@ -131,5 +131,5 @@ hr style="color: 30056b2;"/>
 Si deseas contribuir a este proyecto, ¡no dudes en hacerlo! Puedes enviar problemas (issues) o solicitudes de extracción (pull requests) en el repositorio.
 <h1>Licencia</h1>
 Este proyecto está bajo la licencia MIT. 
-[![Licencia MIT](https://img.shields.io/badge/Licencia-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
+[![Licencia MIT](https://img.shields.io/badge/Licencia-MIT-blue.svg)](https://opensource.org/licenses/MIT)
