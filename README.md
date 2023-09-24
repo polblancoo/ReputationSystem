@@ -34,3 +34,40 @@ El objetivo del trabajo práctico es crear una **plataforma de gestión de reput
 
 - Se deberá presentar un repositorio de código con los contratos.
 - El README del repo deberá contener la explicación de la solución.
+- ##################################################################################################
+<h2 align="center">🦑 ink-examples Solución</h2>
+# Contrato Reputation System
+
+El contrato Reputation System permite administrar un sistema de reputación y votación, donde los participantes pueden votar por otros miembros y ganar premios en función de sus votos y posición en la votación.
+
+## Funcionalidades clave
+
+El contrato<strong> Reputation System</strong> incluye las siguientes funcionalidades:
+
+1. Registro de contribuyentes: Los administradores pueden registrar nuevos contribuyentes en el sistema.
+
+2. Votación: Los miembros pueden votar por otros miembros y ganar reputación <br>
+, se modifico la consigna inicial para que el voto sea positivo y tenga un booster<br>
+determinado en funcion de: <strong> % de votos obtenidos / total votos </strong>.
+
+3. Inicio y finalización de rondas de votación: Los administradores pueden iniciar y finalizar rondas de votación<br>
+depositando en el contrato los tres premios a repartir.Lo ideal seria insertar un Timer a futuro.
+   
+
+5. Premios: Se distribuyen premios monetarios y NFTs a los tres mejores clasificados en cada ronda de votación.
+
+6. Consulta de reputación: Los miembros pueden consultar su reputación acumulada y su posición en la tabla de clasificación.
+
+7. Consulta de fondos del premio: Los miembros pueden consultar los fondos acumulados en el premio de la ronda actual
+   
+## Funciones claves:
+1. Inicio de una nueva ronda de votación
+  
+      let admin = ... // ID del administrador<br>
+      <div class=”color”>Este es un div en una página web.</div>
+      let funds1 = ... // Fondos para el primer puesto
+      let funds2 = ... // Fondos para el segundo puesto
+      let funds3 = ... // Fondos para el tercer puesto
+      let duration = ... // Duración de la ronda en segundos
+      contract.start_voting_round(funds1, funds2, funds3, duration);
+
