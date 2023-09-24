@@ -34,12 +34,15 @@ El objetivo del trabajo práctico es crear una **plataforma de gestión de reput
 
 - Se deberá presentar un repositorio de código con los contratos.
 - El README del repo deberá contener la explicación de la solución.
-- ##################################################################################################
+
+<hr style="color: 30056b2;"/>
+
 <h2 align="center">🦑 ink-examples Solución</h2>
 # Contrato Reputation System
 
 El contrato Reputation System permite administrar un sistema de reputación y votación, donde los participantes pueden votar por otros miembros y ganar premios en función de sus votos y posición en la votación.
 
+<hr style="color: 30056b2;"/>
 ## Funcionalidades clave
 
 El contrato<strong> Reputation System</strong> incluye las siguientes funcionalidades:
@@ -63,7 +66,7 @@ depositando en el contrato los tres premios a repartir.Lo ideal seria insertar u
 ## Funciones claves:
 
 1. Inicio de una nueva ronda de votación
- ``` 
+ ``` rust
       let admin = ... // ID del administrador<br>
       let funds1 = ... // Fondos para el primer puesto
       let funds2 = ... // Fondos para el segundo puesto
@@ -71,3 +74,53 @@ depositando en el contrato los tres premios a repartir.Lo ideal seria insertar u
       let duration = ... // Duración de la ronda en segundos
       contract.start_voting_round(funds1, funds2, funds3, duration);
 ```
+
+2.Votación por un miembro
+
+ ``` rust
+    let voter = ... // ID del miembro que vota
+    let target = ... // ID del miembro por el que se vota
+    contract.vote(target, {value: 1});
+ ```
+3. Finalización de una ronda de votación
+ ``` rust
+    let admin = ... // ID del administrador
+    contract.end_voting_round();
+ ```
+2.1.Consulta de la reputación total de un miembro
+ ``` rust
+    let member = ... // ID del miembro
+    let reputation = contract.get_total_reputation_by_account(member);
+ ```
+2.2.Consulta de los fondos del premio en una posición
+ ``` rust
+       let position = ... // Posición en la ronda (1, 2 o 3)
+    let prize_funds = contract.get_prize_funds(position);
+ ```
+2.3. Devuelve AccountId de posicion ganadora
+ ``` rust
+       let position = ... // Posición en la ronda (1, 2 o 3)
+      let winner_for_position(&self, position: u32)-> Result<AccountId, Error>
+```
+2.4. Devuelve AccountId del Contrato
+ ``` rust
+      get_contract_account_id(&self) -> AccountId
+```
+<hr style="color: 30056b2;"/>
+<h1>Requisitos:</h1>
+  <A HREF="https://use.ink/getting-started/setup"> Ink! setup </A></br>
+   <A HREF="https://github.com/paritytech/cargo-contract"> Cargo-Contract </A></br>
+  <A HREF="https://github.com/paritytech/substrate-contracts-node/releases">Descargar substrate-contracts-node-linux.tar.gz </A></br>
+ <A HREF="https://github.com/swankyhub/swanky-node">Descargar swanky-node -nodo alternativo </A></br>
+  
+Colocar substrate-contracts-node en una carpeta del PATH del sistema</br>
+<strong>Nota:</strong> Al correr el nodo , setting la variable de entorno CONTRACT_NODE="path/del nodo"</br>
+
+<h1>Software utilizado:</h1>
+Software	Versión
+rustup	1.26.0 (5af9b9484 2023-04-05)</br>
+rustc	1.72.0 (5680fa18f 2023-08-23)</br>
+cargo	1.72.0 (103a7ff2e 2023-08-15)</br>
+cargo-contract	3.2.0-unknown-x86_64-unknown-linux-gnu</br>
+substrate-contracts-node o swanky </br>
+
