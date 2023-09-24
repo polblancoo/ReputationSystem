@@ -26,7 +26,9 @@ mod reputation_system {
     pub struct NewVotingRound {
         #[ink(topic)]
         pub admin: AccountId,
-        pub funds: Balance,
+        pub funds1: Balance,
+        pub funds2: Balance,
+        pub funds3: Balance,
         pub votes_per_member: i32,
         pub duration: u64,
     }
@@ -60,7 +62,10 @@ mod reputation_system {
     #[derive(Debug)]
     #[ink::storage_item]
     pub struct VotingRound {
-        funds: Balance,
+        funds1: Balance,
+        funds2: Balance,
+        funds3: Balance,
+
         votes_per_member: i32,
         duration: u64,
         ended: bool,
@@ -79,7 +84,9 @@ mod reputation_system {
             Self {
                 admin,
                 round: VotingRound{
-                    funds: 0,
+                    funds1: 0,
+                    funds2: 0,
+                    funds3: 0,
                     votes_per_member: 1,
                     duration: 0,
                     ended: true,
@@ -168,13 +175,16 @@ mod reputation_system {
         }
        
        fn position_price(&self , position: i8)->Balance {
-            let t = self.round.funds  ;
-            match position {
-                1 => (t * 60) / 100, // Primera posición
-                2 =>(t * 30) / 100, // Segunda posición
-                3 => (t * 10) / 100, // Tercera posición
-                _ => 0,   // Otras posiciones, balance cero por defecto
-            }
+           
+                match position {
+                    1 =>  self.round.funds1,
+                     // Primera posición
+                    2 =>  self.round.funds2,
+                    // Segunda posición
+                    3 =>  self.round.funds3,
+                    
+                    _ =>  0,
+                }    
 
        }
         //Reparte premios dinero y nft a los ganadores
@@ -184,10 +194,12 @@ mod reputation_system {
             let contract_account_id: AccountId =  AccountId::from(Self::env().account_id());
             //PREMIO
             let amount =self.position_price( position);
-            let data: Vec<u8> =  Default::default();
+            //if  amount < 0 {Error::NotPricesFunds};
+            //let mut  data: Vec<u8> =  ink::prelude::vec::Vec::new();
+            let mut data: ink::prelude::vec::Vec<u8> = ink::prelude::vec![1, 2, 3];
             // Obtener el balance transferido con la transacción
-           let a = my_psp22::ContractRef::transfer(&mut self.my_psp22, contract_account_id,caller ,amount,  data );
-           
+           //let a=my_psp22::ContractRef::transfer(&mut self.my_psp22, contract_account_id, caller , amount,  data );
+            let a = my_psp22::ContractRef::transfer(&mut self.my_psp22 , contract_account_id, caller, amount , data);
             if let Err(err) =psp34_bis::ContractbisRef::mint_to(&mut self.psp34_bis , caller){
                 return Err( Error::NftNotSent);
              }
@@ -202,17 +214,25 @@ mod reputation_system {
         }
     
         //deposita en el contrato el premio monetario.
-        #[ink(message, payable)]
-        pub fn Deposit_found(&mut self, amount: Balance , data : Vec<u8> )->Result<(), Error> {
+        //#[ink(message, payable)]
+        pub fn Deposit_found(&mut self, amount1: Balance , amount2: Balance , amount3: Balance , data : Vec<u8> )->Result<(), Error> {
+           
+           
             let caller: AccountId = self.env().caller();
            let contract_account_id: AccountId =  AccountId::from(Self::env().account_id());
             // Obtener el balance transferido con la transacción
-           let a = my_psp22::ContractRef::transfer(&mut self.my_psp22, caller ,contract_account_id,amount , data );
+            let amount_total_to_contract = amount1 + amount2 +amount3;
+            let a = my_psp22::ContractRef::transfer(&mut self.my_psp22, caller ,contract_account_id,amount_total_to_contract , data.clone() );
+            //let a = my_psp22::ContractRef::transfer(&mut self.my_psp22, caller ,contract_account_id,amount2 , data.clone() );
+            //let a = my_psp22::ContractRef::transfer(&mut self.my_psp22, caller ,contract_account_id,amount3 , data.clone() );
            
             // Verificar que el balance transferido sea mayor que cero
-            if amount > 0 {
+            if amount1  > 0 && amount2  > 0 && amount3  > 0 {
                 // Incrementar el balance del contrato
-                self.round.funds += amount;
+                self.round.funds1 += amount1;
+                self.round.funds2 += amount2;
+                self.round.funds3 += amount3;
+
                 Ok(())
             } else {
                 // Si no se transfirió ningún balance, devolver un error
@@ -277,7 +297,7 @@ mod reputation_system {
             let round = &self.round;
 
             // Verificar si la VotingRound está en curso
-            if !round.ended {
+            if round.ended==false {
                 // Obtener el total acumulado de puntos de reputación del miembro
                 let total_reputation = round.votes_per_member;
 
@@ -290,9 +310,14 @@ mod reputation_system {
         }
         // Función para obtener los fondos depositados en el premio
         #[ink(message)]
-        pub fn get_prize_funds(&self) -> Balance {
-            self.round.funds
-                   
+        pub fn get_prize_funds(&self, position: i8) -> Balance {
+            
+            match position {
+                1 => self.round.funds1, // Primera posición
+                2 => self.round.funds2, // Segunda posición
+                3 => self.round.funds3, // Tercera posición
+                _ =>  0,             // Otras posiciones, balance cero por defecto
+            }       
         } 
         //fondos totales en el contrato
         #[ink(message)]
@@ -305,7 +330,7 @@ mod reputation_system {
         }     
         // Función para iniciar una nueva ronda de votación
         #[ink(message)]
-        pub fn start_voting_round(&mut self, funds: Balance,  duration: u64) -> Result<(), Error> {
+        pub fn start_voting_round(&mut self, funds1: Balance,funds2: Balance,funds3: Balance,  duration: u64) -> Result<(), Error> {
             let caller = self.env().caller();
             self.ensure_admin(caller)?;
 
@@ -316,10 +341,12 @@ mod reputation_system {
             //deposita fondos en el contrato
             //todo!();
             let  data: Vec<u8> = ink::prelude::vec![1, 2, 3];
-             self.Deposit_found(funds,data )?;
+             self.Deposit_found(funds1, funds2, funds3,data )?;
             // Crear una nueva ronda de votación
             self.round = VotingRound{
-                funds,
+                funds1,
+                funds2,
+                funds3,
                 votes_per_member: 0,
                 duration,
                 ended: false,
@@ -332,7 +359,9 @@ mod reputation_system {
             // Emitir el evento NewVotingRound
             self.env().emit_event(NewVotingRound {
                 admin: caller,
-                funds,
+                funds1,
+                funds2,
+                funds3,
                 votes_per_member:0,
                 duration,
             });
@@ -358,9 +387,9 @@ mod reputation_system {
             //  faltaria...
             //  que un timer ejecute el reparto automaticamente.
             
-            self.Winners_prices( caller1 , 1i8)?;
-            self.Winners_prices( caller2 , 2i8)?;
-            self.Winners_prices( caller3 , 3i8)?;
+           // self.Winners_prices( caller1 , 1i8)?;
+           // self.Winners_prices( caller2 , 2i8)?;
+           // self.Winners_prices( caller3 , 3i8)?;
             
             // -Emitir NFT;
             let nft=self.Winners_prices(caller1 , 1)?;
@@ -368,7 +397,9 @@ mod reputation_system {
             let nft=self.Winners_prices(caller1 , 3)?;
             // Finalizar la ronda
             self.round = VotingRound{
-                funds: 0,
+                funds1: 0,
+                funds2: 0,
+                funds3: 0,
                 votes_per_member :0,
                 duration: 0,
                 ended: true,
@@ -403,6 +434,8 @@ mod reputation_system {
 
             // Actualizar la reputación del objetivo
             self.reputacion.insert(target, &new_reputation);
+            //Acturaliza total votos
+            self.round.votes_per_member = self.round.votes_per_member+ new_reputation;
 
             //verifica la tabla de posiciones
             self.Winers_position(target , new_reputation );

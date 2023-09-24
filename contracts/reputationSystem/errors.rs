@@ -18,5 +18,6 @@ pub enum Error {
     NotRound,
     PosicionNoValida,
     FaltanGanadores,
-    NotTransferredBalance
+    NotTransferredBalance,
+    NotPricesFunds
 }
