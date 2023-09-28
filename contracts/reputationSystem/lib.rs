@@ -14,6 +14,7 @@ mod reputation_system {
         },
         selector_bytes,
     };
+    //use ink_prelude::Into;
     use ink::prelude::string::String;
     use ink::storage::Lazy;
     use ink::storage::Mapping;
@@ -40,8 +41,8 @@ mod reputation_system {
     }
 
     
-    /// Defines the storage of your contract.
-    /// 
+    // Defines the storage of your contract.
+    
     #[ink(storage)]
     pub struct ReputationSystem {
         admin: AccountId,
@@ -75,7 +76,7 @@ mod reputation_system {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
         pub fn new(admin: AccountId, psp34_contract_code_hash: Hash, my_psp22_contract_code_hash: Hash) -> Self {
-           let init_Suply: Balance = 10_000_000; 
+           let init_Suply: Balance = 10_000_000_000_000_000_000_000_000_000_000_000; 
           
            let name: Option<String> = Some(String::from("loopring"));
           
@@ -194,11 +195,11 @@ mod reputation_system {
                 } 
                 */
                  match position {
-                    1 =>  1000,
+                    1 =>   self.round.funds1,
                      // Primera posición
-                    2 =>  10,
+                    2 =>  self.round.funds2,
                     // Segunda posición
-                    3 =>  1,
+                    3 =>   self.round.funds3,
                     
                     _ =>  0,
                 }     
@@ -235,22 +236,30 @@ mod reputation_system {
             } 
             
         }
-        // Función para obtener el AccountId del contrato en ejecución
-        #[ink(message)]
-        pub fn get_contract_account_id(&self) -> AccountId {
-            // Utiliza Self::env().caller() para obtener el AccountId
-            AccountId::from(Self::env().account_id())
-        }
-    
+        //tranforma en numero decimal Balance
+        pub fn r_u64_to_Balance(&self , num : u64)->Balance{
+           // Balance::from(num) / (10u128.pow(2))
+            0
+          }
+
+
+
         //deposita en el contrato el premio monetario.
         
-        pub fn Deposit_found(&mut self, amount1: Balance , amount2: Balance , amount3: Balance , data : Vec<u8> )->Result<(), Error> {
+        pub fn Deposit_found(&mut self, amount1: u64 , amount2: u64 , amount3: u64 , data : Vec<u8> )->Result<(), Error> {
            
-           
+            //Balance = Balance::from(amount1) / (10u128.pow(2))
+            //let amount1=   self.r_u64_to_Balance(amount1);//  r_u64_to_Balance(amount1);
+           // let amount2: Balance = self.r_u64_to_Balance(amount2);
+            //let amount3: Balance = self.r_u64_to_Balance(amount3);
+          let amount1: Balance = amount1 as Balance;
+          let amount2: Balance = amount2 as Balance;
+          let amount3: Balance = amount3 as Balance;
+
           //  let caller: AccountId = self.env().caller();
            //let contract_account_id: AccountId =  AccountId::from(Self::env().account_id());
             // Obtener el balance transferido con la transacción
-            let amount_total_to_contract = amount1 + amount2 +amount3;
+            //let amount_total_to_contract = amount1 + amount2 +amount3;
             //let a = my_psp22::ContractRef::transfer(&mut self.my_psp22, caller ,contract_account_id,amount_total_to_contract , data.clone() );
         
         /*Modificacion 27/09/2023
@@ -402,7 +411,12 @@ mod reputation_system {
             //deposita fondos en el contrato
             //todo!();
             let  data: Vec<u8> = ink::prelude::vec![1, 2, 3];
-             self.Deposit_found(funds1, funds2, funds3,data )?;
+             self.Deposit_found(funds1 as u64, funds2 as u64, funds3 as u64,data )?;
+            //transforma a Balance los depositos
+           // let mut funds1: Balance = self.r_u64_to_Balance(funds1);
+           // let mut funds2: Balance = self.r_u64_to_Balance(funds2);
+            //let mut funds3: Balance = self.r_u64_to_Balance(funds3);
+
             // Crear una nueva ronda de votación
             self.round = VotingRound{
                 funds1,
@@ -573,11 +587,6 @@ mod reputation_system {
             assert_eq!(winners[2].1, votes2);
         }
     }
-
-    
-    
-    
-
 
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
     ///
