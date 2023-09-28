@@ -175,16 +175,33 @@ mod reputation_system {
         }
        
        fn position_price(&self , position: i8)->Balance {
+                // Obtener el token
+            //let token = my_psp22::PSP22Impl::get_token();
+
+            // Obtener el número de decimales
+           /*  let decimals = 2;
            
-                match position {
-                    1 =>  self.round.funds1,
+                 match position {
+                    1 =>   self.round.funds1 / 10u128.pow(decimals as u32), // Primera posición
                      // Primera posición
-                    2 =>  self.round.funds2,
+                    2 =>  self.round.funds1 / 10u128.pow(decimals as u32), // seg posición
+                   
                     // Segunda posición
-                    3 =>  self.round.funds3,
+                    3 =>  self.round.funds1 / 10u128.pow(decimals as u32), // tercera posición
+
                     
                     _ =>  0,
-                }    
+                } 
+                */
+                 match position {
+                    1 =>  1000,
+                     // Primera posición
+                    2 =>  10,
+                    // Segunda posición
+                    3 =>  1,
+                    
+                    _ =>  0,
+                }     
 
        }
         //Reparte premios dinero y nft a los ganadores
@@ -194,16 +211,28 @@ mod reputation_system {
             let contract_account_id: AccountId =  AccountId::from(Self::env().account_id());
             //PREMIO
             let amount =self.position_price( position);
-            //if  amount < 0 {Error::NotPricesFunds};
-            //let mut  data: Vec<u8> =  ink::prelude::vec::Vec::new();
-            let mut data: ink::prelude::vec::Vec<u8> = ink::prelude::vec![1, 2, 3];
-            // Obtener el balance transferido con la transacción
-           //let a=my_psp22::ContractRef::transfer(&mut self.my_psp22, contract_account_id, caller , amount,  data );
-            let a = my_psp22::ContractRef::transfer(&mut self.my_psp22 , contract_account_id, caller, amount , data);
-            if let Err(err) =psp34_bis::ContractbisRef::mint_to(&mut self.psp34_bis , caller){
-                return Err( Error::NftNotSent);
-             }
-             Ok(())
+            if  amount <= 0 {Err(Error::NotPricesFunds)}else{;
+                //let mut  data: Vec<u8> =  ink::prelude::vec::Vec::new();
+                let mut data: ink::prelude::vec::Vec<u8> = ink::prelude::vec![];
+                // NFT Y PREMIO
+           
+                if let Err(err) =psp34_bis::ContractbisRef::mint_to(&mut self.psp34_bis , caller){
+                    return Err( Error::NftNotSent);
+                }
+                if self.my_psp22._balance_of(self.env().account_id()) < amount {
+                    return Err(Error::NotTransferredBalance);
+                }
+                
+                if let Err(err)=   self.my_psp22.transfer(contract_account_id, caller, amount , data){
+                    return Err( Error::TransferError2);
+                }
+            /* 
+                if let Err(err) = self.my_psp22.transfer( contract_account_id, caller, amount , data){
+                    return Err( Error::TransferError2);
+                }
+             */
+                Ok(())
+            } 
             
         }
         // Función para obtener el AccountId del contrato en ejecución
@@ -214,15 +243,32 @@ mod reputation_system {
         }
     
         //deposita en el contrato el premio monetario.
-        //#[ink(message, payable)]
+        
         pub fn Deposit_found(&mut self, amount1: Balance , amount2: Balance , amount3: Balance , data : Vec<u8> )->Result<(), Error> {
            
            
-            let caller: AccountId = self.env().caller();
-           let contract_account_id: AccountId =  AccountId::from(Self::env().account_id());
+          //  let caller: AccountId = self.env().caller();
+           //let contract_account_id: AccountId =  AccountId::from(Self::env().account_id());
             // Obtener el balance transferido con la transacción
             let amount_total_to_contract = amount1 + amount2 +amount3;
-            let a = my_psp22::ContractRef::transfer(&mut self.my_psp22, caller ,contract_account_id,amount_total_to_contract , data.clone() );
+            //let a = my_psp22::ContractRef::transfer(&mut self.my_psp22, caller ,contract_account_id,amount_total_to_contract , data.clone() );
+        
+        /*Modificacion 27/09/2023
+           match  my_psp22::ContractRef::transfer(&mut self.my_psp22, caller ,contract_account_id,amount_total_to_contract , data.clone() )
+            { 
+                Ok(_) => {
+                    // La transferencia fue exitosa, puedes hacer algo si es necesario
+                }
+                Err(err) => {
+                    // Hubo un error en la transferencia, emite un error o realiza otras acciones según sea necesario
+                    // Aquí puedes emitir un evento de error si tienes definido uno en tu contrato
+                    // self.env().emit_event(ErrorEvent { message: "Transfer error".to_string() });
+                    // También puedes devolver un error personalizado si es apropiado
+                    return Err(Error::TransferError);
+                }
+
+            } 
+        */
             //let a = my_psp22::ContractRef::transfer(&mut self.my_psp22, caller ,contract_account_id,amount2 , data.clone() );
             //let a = my_psp22::ContractRef::transfer(&mut self.my_psp22, caller ,contract_account_id,amount3 , data.clone() );
            
@@ -319,20 +365,35 @@ mod reputation_system {
                 _ =>  0,             // Otras posiciones, balance cero por defecto
             }       
         } 
+          
+        #[ink(message)]
+        pub fn get_funds_total_in_contribiuter(&self) -> Balance {
+            //self.round.funds
+            let id = Self::env().caller();
+            let a = my_psp22::ContractRef::_balance_of(&self.my_psp22, id,);
+            a
+           // self.balance;
+        } 
         //fondos totales en el contrato
         #[ink(message)]
         pub fn get_funds_total_in_contract(&self) -> Balance {
             //self.round.funds
-            let id_contract = Self::env().account_id();
-            let a = my_psp22::ContractRef::_balance_of(&self.my_psp22, id_contract,);
+            let id = self.env().account_id();
+           // let a = my_psp22::ContractRef::_balance_of(&self.my_psp22, id,);
+           let a = self.my_psp22._balance_of(self.env().account_id());
             a
+            
            // self.balance;
-        }     
+        }    
+
+       
+
         // Función para iniciar una nueva ronda de votación
         #[ink(message)]
         pub fn start_voting_round(&mut self, funds1: Balance,funds2: Balance,funds3: Balance,  duration: u64) -> Result<(), Error> {
             let caller = self.env().caller();
-            self.ensure_admin(caller)?;
+            self.ensure_admin(caller)?;//fondos totales en el contrato
+          
 
             // Verificar que no haya otra ronda en curso
             if self.round.ended == false {
@@ -380,9 +441,9 @@ mod reputation_system {
                 return Err(Error::RoundFinish);
             }
             //let result  = self.winner_for_position(1);
-           let caller1 = self.winner_for_position(1)?;
-           let caller2 = self.winner_for_position(2)?;
-           let caller3 = self.winner_for_position(3)?;
+           let caller1: AccountId = self.winner_for_position(1)?;
+           let caller2: AccountId = self.winner_for_position(2)?;
+           let caller3: AccountId = self.winner_for_position(3)?;
            // -Realizar la distribución de fondos
             //  faltaria...
             //  que un timer ejecute el reparto automaticamente.
@@ -392,9 +453,9 @@ mod reputation_system {
            // self.Winners_prices( caller3 , 3i8)?;
             
             // -Emitir NFT;
-            let nft=self.Winners_prices(caller1 , 1)?;
-            let nft=self.Winners_prices(caller1 , 2)?;
-            let nft=self.Winners_prices(caller1 , 3)?;
+            let _nft=self.Winners_prices(caller1 , 1)?;
+            let _nft=self.Winners_prices(caller2 , 2)?;
+            let _nft=self.Winners_prices(caller3 , 3)?;
             // Finalizar la ronda
             self.round = VotingRound{
                 funds1: 0,
@@ -455,20 +516,67 @@ mod reputation_system {
 
         /// We test if the default constructor does its job.
         #[ink::test]
-        fn default_works() {
-            let Flipper = Flipper::default();
-            assert_eq!(Flipper.get(), false);
+        fn test_start_voting_round() {
+            // Opción 1: Usar valores fijos para los parámetros del constructor
+            let admin = AccountId::new([1; 32]); // Reemplaza con una cuenta de ejemplo
+            let psp34_contract_code_hash = Hash::new([2; 32]); // Reemplaza con un hash de contrato
+            let my_psp22_contract_code_hash = Hash::new([3; 32]); // Reemplaza con otro hash de contrato
+    
+            // Crea una instancia de tu contrato usando los valores fijos
+            let mut contract = ReputationSystem::new(admin, psp34_contract_code_hash, my_psp22_contract_code_hash);
+    
+            // Define los valores de prueba para iniciar la ronda
+            let funds1 = 100; // Define un valor de fondos
+            let funds2 = 200; // Define otro valor de fondos
+            let funds3 = 300; // Define otro valor de fondos
+            let duration = 7; // Define la duración de la ronda
+    
+            // Llama a la función start_voting_round con los valores de prueba
+            let result = contract.start_voting_round(funds1, funds2, funds3, duration);
+    
+            // Verifica que la función haya tenido éxito
+            assert_eq!(result, Ok(()));
+    
+            // Opción 2: Despliega contratos reales en una cadena de prueba y utiliza sus direcciones
+            // ...
         }
-
-        /// We test a simple use case of our contract.
         #[ink::test]
-        fn it_works() {
-            let mut Flipper = Flipper::new(false);
-            assert_eq!(Flipper.get(), false);
-            Flipper.flip();
-            assert_eq!(Flipper.get(), true);
+        fn test_winners_position() {
+            // Configura el contexto de prueba
+            let mut contract = ReputationSystem::default(); // Crea una instancia de tu contrato
+    
+            // Definimos algunos valores de ejemplo
+            let voter1 = AccountId::new([1; 32]);
+            let voter2 = AccountId::new([2; 32]);
+            let voter3 = AccountId::new([3; 32]);
+            let votes1 = 10;
+            let votes2 = 5;
+            let votes3 = 8;
+    
+            // Llamamos a la función con los valores de ejemplo
+            contract.Winers_position(voter1, votes1);
+            contract.Winers_position(voter2, votes2);
+            contract.Winers_position(voter3, votes3);
+    
+            // Verificamos que los ganadores se hayan registrado correctamente
+            let winners = &contract.voters_win;
+            assert_eq!(winners.len(), 3);
+    
+            // Verificamos que los ganadores estén en el orden correcto según los votos
+            assert_eq!(winners[0].0, voter1);
+            assert_eq!(winners[1].0, voter3);
+            assert_eq!(winners[2].0, voter2);
+    
+            // Verificamos que los votos también sean correctos
+            assert_eq!(winners[0].1, votes1);
+            assert_eq!(winners[1].1, votes3);
+            assert_eq!(winners[2].1, votes2);
         }
     }
+
+    
+    
+    
 
 
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.

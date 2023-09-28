@@ -19,5 +19,7 @@ pub enum Error {
     PosicionNoValida,
     FaltanGanadores,
     NotTransferredBalance,
-    NotPricesFunds
+    NotPricesFunds,
+    TransferError,
+    TransferError2
 }
