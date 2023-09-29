@@ -26,6 +26,9 @@ depositando en el contrato los tres premios a repartir.Lo ideal seria insertar u
 6. Consulta de reputación: Los miembros pueden consultar su reputación acumulada y su posición en la tabla de clasificación.
 
 7. Consulta de fondos del premio: Los miembros pueden consultar los fondos acumulados en el premio de la ronda actual
+
+8. Se agrego en psp34 el ejemplo de como hacer un Upgrade del contrato.
+   Nota: no olvidar cargar la metadata.jason del contrato <strong>"nuevo"</strong> , en el contrato <strong>"viejo"</strong>
    
 ## Funciones claves:
 
