@@ -7,7 +7,7 @@ pub use self::psp34_bis_2::ContractbisRef;
 
 
 
-#[openbrush::implementation(PSP34, PSP34Mintable,Upgradeable, Ownable )]
+#[openbrush::implementation(PSP34, PSP34Mintable, PSP34Burnable,Ownable,Upgradeable, AccessControl  )]
 #[openbrush::contract]
 pub mod psp34_bis_2 {
   
@@ -22,8 +22,19 @@ pub mod psp34_bis_2 {
  
 };
 
+
+
      const STORAGE_KEY: u32 = openbrush::storage_unique_key!("contract_v2", "fee_extra");
     
+     // You can manually set the number for the role.
+    // But better to use a hash of the variable name.
+    // It will generate a unique identifier of this role.
+    // And will reduce the chance to have overlapping roles.
+    const BURN: RoleType = ink::selector_id!("BURN");
+    
+    #[default_impl(PSP34Burnable)]
+    #[modifiers(only_role(BURN))]
+    fn burn() {}    
     #[ink(storage)]
     #[derive(Default, Storage, )]
     pub struct Contractbis {
@@ -35,6 +46,9 @@ pub mod psp34_bis_2 {
               
         #[storage_field]
 		next_id: u8,
+        
+        #[storage_field]
+        access: access_control::Data,
        //Se agrega campo , siempre debajo del ultimo para que no apunte a un lugar 
        //equivodao en el Storage
         fee_extra: Lazy<AccountId, ManualKey<STORAGE_KEY>>,
@@ -50,13 +64,9 @@ pub mod psp34_bis_2 {
             let mut _instance = Self::default();
 			psp34::Internal::_mint_to(&mut _instance, Self::env().caller(), Id::U8(1)).expect("Can mint");
 			ownable::Internal::_init_with_owner(&mut _instance, Self::env().caller());
-            //ownable::Internal::_init_with_owner(&mut _instance, Self::env().caller());
-           // access_control::Internal::_init_with_admin(&mut _instance, Some(Self::env().caller()));
-			// We grant SET_CODE role to caller in constructor, so he can MODIFICAR EL CONTRATO 
-          //* */  AccessControl::grant_role(&mut _instance, MANAGER, Some(Self::env().caller())).expect("Should grant MANAGER SET_HASH role");
-           // We grant minter role to caller in constructor, so he can mint/burn tokens
-         //* */  AccessControl::grant_role(&mut _instance, MINTER, Some(Self::env().caller())).expect("Should grant MINTER role");
-            _instance
+            // We grant minter role to caller in constructor, so he can mint/burn tokens
+            AccessControl::grant_role(&mut _instance, BURN, Some(Self::env().caller())).expect("Should grant MINTER role");
+             _instance
         }
        // #[ink(message)]
         //#[default_impl(PSP34Mintable)]

@@ -9,7 +9,7 @@ ink = { version = "4.3.0", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
-openbrush = { tag = "4.0.0-beta", git = "https://github.com/Brushfam/openbrush-contracts?tag=4.0.0-beta", default-features = false, features =["psp34", "upgradeable", "ownable"] }
+openbrush = { tag = "4.0.0-beta", git = "https://github.com/Brushfam/openbrush-contracts?tag=4.0.0-beta", default-features = false, features =["psp34", "upgradeable", "access_control", "ownable"] }
 
 [dev-dependencies]
 ink_e2e = "4.2.0"
