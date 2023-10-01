@@ -6,12 +6,13 @@ pub use self::psp34_bis_2::ContractbisRef;
 
 
 
-//sE AGREGA EL TRAIT Upgradable
-#[openbrush::implementation(PSP34, PSP34Mintable,Upgradeable, Ownable )]
+//sE AGREGA EL TRAIT Upgradable y el de acces control para Burn
+#[openbrush::implementation(PSP34, PSP34Mintable, PSP34Burnable,Ownable,Upgradeable, AccessControl )]
 #[openbrush::contract]
 pub mod psp34_bis_2 {
     use openbrush::{traits::Storage,
-                    
+                    //modif. para acceso control
+                    modifiers,
                     contracts::psp34,
              
      };
@@ -21,7 +22,15 @@ pub mod psp34_bis_2 {
         Lazy,
     };
 
+     // You can manually set the number for the role.
+    // But better to use a hash of the variable name.
+    // It will generate a unique identifier of this role.
+    // And will reduce the chance to have overlapping roles.
+    const BURN: RoleType = ink::selector_id!("BURN");
     
+    #[default_impl(PSP34Burnable)]
+    #[modifiers(only_role(BURN))]
+    fn burn() {}
 
     #[ink(storage)]
     #[derive(Default, Storage, )]
@@ -34,6 +43,8 @@ pub mod psp34_bis_2 {
         
         #[storage_field]
 		next_id: u8,
+        #[storage_field]
+        access: access_control::Data,
     }
 
      // Implementa el trait psp34_lop_organization para el contrato Votantes
@@ -43,6 +54,8 @@ pub mod psp34_bis_2 {
             let mut _instance = Self::default();
 			psp34::Internal::_mint_to(&mut _instance, Self::env().caller(), Id::U8(1)).expect("Can mint");
 			ownable::Internal::_init_with_owner(&mut _instance, Self::env().caller());
+             // We grant minter role to caller in constructor, so he can mint/burn tokens
+             AccessControl::grant_role(&mut _instance, BURN, Some(Self::env().caller())).expect("Should grant MINTER role");
             _instance
         }
 
